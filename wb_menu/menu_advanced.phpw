@@ -1,0 +1,143 @@
+<?php
+
+/*******************************************************************************
+
+ WINBINDER - The native Windows binding for PHP for PHP
+
+ Copyright © Hypervisual - see LICENSE.TXT for details
+ Author: Rubem Pechansky (http://winbinder.org/contact.php)
+
+ How to use wb_menu with an array of values
+
+*******************************************************************************/
+
+//------------------------------------------------------------ SYSTEM PARAMETERS
+
+define("PATH_DATA",		"./");
+define("PATH_INC",		"../../include/");
+define("PATH_RES",		"../../resources/");
+
+//----------------------------------------------------------------- DEPENDENCIES
+
+include PATH_INC . "winbinder.php";
+include 'wb_menu.php';
+
+//-------------------------------------------------------------------- CONSTANTS
+
+define("APPNAME",           "WB_MENU - Advanced");    // Application name
+
+// Control identifiers
+
+define("ID_BUTTON_1",          101);
+define("ID_BUTTON_2",          102);
+define("ID_BUTTON_3",          103);
+define("ID_BUTTON_4",          104);
+
+//-------------------------------------------------------------- EXECUTABLE CODE
+
+// Create main window, then assign a procedure and an icon to it
+
+$mainwin = wb_create_window(NULL, AppWindow, APPNAME, 320, 240);
+wb_set_handler($mainwin, "process_main");
+
+// Create menu
+
+$menu = new wb_menu($mainwin);
+
+$file_menu = $menu->add_menu(0, "File");
+	$i = $menu->add_item($file_menu, "Open", 1000);
+	$menu->item_image($file_menu, $i, PATH_RES.'menu_open.bmp' );
+	$i = $menu->add_item($file_menu, 'Redo', 1001);
+	$menu->check_item( $file_menu, $i, true ); // checked
+$menu->add_item(0, 'Top Item', 1012);
+$growing_menu = $menu->add_menu(0, 'Growing');
+	$menu->add_item($growing_menu, 'Parser', 1002);
+	$menu->add_item($growing_menu, 'Paths', 1003);
+$multi_menu = $menu->add_menu(0, 'Multi');
+	$menu->add_item($multi_menu, 'one', 1004);
+	$menu->add_separator($multi_menu); // separator
+	$m1 = $menu->add_menu($multi_menu, 'two' );
+		$menu->add_item($m1, 'two - one', 1005);
+		$menu->add_item($m1, 'two - two', 1006);
+		$menu->add_item($m1, 'two - three', 1007);
+		$menu->add_item($m1, 'two - four', 1008);
+		$menu->add_separator($m1); // separator
+		$menu->add_item($m1, 'two - five', 1009);
+		$menu->add_item($m1, 'two - six', 1010);
+	$menu->add_item($multi_menu, 'three', 1011);
+
+$menu->build();
+
+// Create status bar
+
+$statusbar = wb_create_control($mainwin, StatusBar, '');
+
+// Create some buttons
+
+wb_create_control($mainwin, PushButton, 'Add Sub Menu',	10,  20, 130, 24, ID_BUTTON_1);
+wb_create_control($mainwin, PushButton, 'Add Item',	10,  50, 130, 24, ID_BUTTON_2);
+wb_create_control($mainwin, PushButton, 'Check Item',	10,  80, 130, 24, ID_BUTTON_3);
+wb_create_control($mainwin, PushButton, 'Disable Item',	10,  110, 130, 24, ID_BUTTON_4);
+
+
+// Enter application loop
+
+wb_main_loop();
+
+//-------------------------------------------------------------------- FUNCTIONS
+
+/* Process main window commands */
+
+function process_main($window, $id)
+{
+    global $statusbar, $menu, $new_menu, $growing_menu;
+
+
+    switch($id) {
+		
+		case ID_BUTTON_1:
+			if ( empty($new_menu) )
+			{
+				$new_menu = $menu->add_menu(0, 'New Menu');
+				$menu->add_item($new_menu, 'Item 1', 1013);
+				$menu->add_item($new_menu, 'Item 2', 1014);
+				wb_set_text($statusbar, 'Sub menu (New Menu) added');
+			}
+		break;
+		
+		case ID_BUTTON_2:
+			$r = rand(1025, 2000);
+			$menu->add_item($growing_menu, 'Item '.$r, $r);
+			wb_set_text($statusbar, 'Item Growing -> Item '.$r.' added');
+		break;
+		
+		case ID_BUTTON_3:
+			$c = count( $menu->itemMap[$growing_menu] );
+			echo $c."\r\n";
+			$s = rand(0, $c - 1);
+			$menu->check_item( $growing_menu, $s, true );
+			wb_set_text($statusbar, 'Item Growing -> '.$menu->itemMap[$growing_menu][$s].' checked');
+		break;
+		
+		case ID_BUTTON_4:
+			$c = count( $menu->itemMap[$growing_menu] );
+			echo $c."\r\n";
+			$s = rand(0, $c - 1);
+			$menu->enable_item( $growing_menu, $s, false );
+			wb_set_text($statusbar, 'Item Growing -> '.$menu->itemMap[$growing_menu][$s].' disabled');
+		break;
+
+        case IDCLOSE:       // IDCLOSE is predefined
+            wb_destroy_window($window);
+        break;
+		
+		default:
+			if($id > 999 && $id < 2000)
+				wb_set_text($statusbar, 'Menu item with id of ' . $id . ' was clicked');
+    }
+}
+
+
+//------------------------------------------------------------------ END OF FILE
+
+?>

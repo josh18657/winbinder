@@ -1,0 +1,128 @@
+<?php
+
+/*******************************************************************************
+
+ WINBINDER - The native Windows binding for PHP for PHP
+
+ Copyright © Hypervisual - see LICENSE.TXT for details
+ Author: Rubem Pechansky (http://winbinder.org/contact.php)
+
+ wb_menu example
+
+*******************************************************************************/
+
+//------------------------------------------------------------ SYSTEM PARAMETERS
+
+define("PATH_DATA",		"./");
+define("PATH_INC",		"../../include/");
+define("PATH_RES",		"../resources/");
+
+//----------------------------------------------------------------- DEPENDENCIES
+
+include PATH_INC . "winbinder.php";
+include 'wb_menu.php';
+
+//-------------------------------------------------------------------- CONSTANTS
+
+define("APPNAME",           "WB_MENU - Popup");    // Application name
+
+// Control identifiers
+
+define("ID_BUTTON_1",          101);
+define("ID_BUTTON_2",          102);
+define("ID_BUTTON_3",          103);
+define("ID_BUTTON_4",          104);
+
+//-------------------------------------------------------------- EXECUTABLE CODE
+
+// Create main window, then assign a procedure and an icon to it
+
+$mainwin = wb_create_window(NULL, AppWindow, APPNAME, 320, 240);
+wb_set_handler($mainwin, "process_main");
+
+
+// Create status bar
+
+$statusbar = wb_create_control($mainwin, StatusBar, '');
+
+// Create some buttons
+
+wb_create_control($mainwin, PushButton, 'Click Me',	10,  20, 130, 24, ID_BUTTON_1);
+wb_create_control($mainwin, PushButton, 'Click Me',	10,  50, 130, 24, ID_BUTTON_2);
+wb_create_control($mainwin, PushButton, 'Click Me',	10,  80, 130, 24, ID_BUTTON_3);
+wb_create_control($mainwin, PushButton, 'Click Me',	10,  110, 130, 24, ID_BUTTON_4);
+
+
+// Enter application loop
+
+wb_main_loop();
+
+//-------------------------------------------------------------------- FUNCTIONS
+
+/* Process main window commands */
+
+function process_main($window, $id)
+{
+    global $statusbar, $menu, $new_menu, $growing_menu;
+
+
+    switch($id) {
+		
+		case ID_BUTTON_1:
+			wb_set_text($statusbar, 'Popup menu');
+			
+			$p_menu = new wb_menu($window, true);
+
+			$file_menu = $p_menu->add_menu(0, "File");
+				$p_menu->add_item($file_menu, "Undo", 1000);
+				$p_menu->add_item($file_menu, 'Redo', 1001);
+			$test_menu = $p_menu->add_menu(0, 'Test');
+				$p_menu->add_item($test_menu, 'Parser', 1002);
+				$p_menu->add_item($test_menu, 'Paths', 1003);
+				
+			$p_menu->build();
+		break;
+		
+		case ID_BUTTON_2:
+			wb_set_text($statusbar, 'Popup menu from array');
+			
+			$menu_data = array(
+				array('File',
+					array(
+						array('Undo', 1004),
+						array('Redo', 1005),
+					),
+				),
+				array('Test', 
+					array(
+						array('Parser', 1006),
+						array('Paths', 1007),
+					),
+				),
+			);
+			
+			$p_menu = new wb_menu($window, true, $menu_data);
+		break;
+		
+		case ID_BUTTON_3:
+			wb_set_text($statusbar, 'Button 3 clicked');
+		break;
+		
+		case ID_BUTTON_4:
+			wb_set_text($statusbar, 'Button 4 clicked');
+		break;
+
+        case IDCLOSE:       // IDCLOSE is predefined
+            wb_destroy_window($window);
+        break;
+		
+		default:
+			if($id > 999 && $id < 2000)
+				wb_set_text($statusbar, 'Menu item with id of ' . $id . ' was clicked');
+    }
+}
+
+
+//------------------------------------------------------------------ END OF FILE
+
+?>

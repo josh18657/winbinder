@@ -1,0 +1,128 @@
+<?php
+
+/*******************************************************************************
+
+ WINBINDER - The native Windows binding for PHP for PHP
+
+ Copyright © Hypervisual - see LICENSE.TXT for details
+ Author: Rubem Pechansky (http://winbinder.org/contact.php)
+
+  wb_menu example
+
+*******************************************************************************/
+
+//------------------------------------------------------------ SYSTEM PARAMETERS
+
+define("PATH_DATA",		"./");
+define("PATH_INC",		"../../include/");
+define("PATH_RES",		"../resources/");
+
+//----------------------------------------------------------------- DEPENDENCIES
+
+include PATH_INC . "winbinder.php";
+include 'wb_menu.php';
+
+//-------------------------------------------------------------------- CONSTANTS
+
+define("APPNAME",           "WB_MENU - From array");    // Application name
+
+// Control identifiers
+
+define("ID_BUTTON_1",          101);
+define("ID_BUTTON_2",          102);
+define("ID_BUTTON_3",          103);
+define("ID_BUTTON_4",          104);
+
+//-------------------------------------------------------------- EXECUTABLE CODE
+
+// Create main window, then assign a procedure and an icon to it
+
+$mainwin = wb_create_window(NULL, AppWindow, APPNAME, 320, 240);
+wb_set_handler($mainwin, "process_main");
+
+// Create menu
+
+$menu_data = array(
+	array('File',
+		array(
+			array('Undo', 1000),
+			array('Redo', 1001),
+		),
+	),
+	array('Top Item', 1012),
+	array('Test', 
+		array(
+			array('Parser', 1002),
+			array('Paths', 1003),
+		),
+	),
+	array('Multi',
+		array(
+			array('one', 1004),
+			null, // separator
+			array('two', 
+				array(
+					array('two - one', 1005),
+					array('two - two', 1006),
+					array('two - three', 1007),
+					array('two - four', 1008),
+					null, // separator
+					array('two - five', 1009),
+					array('two - six', 1010),
+				),
+			),
+			array('three', 1011),
+		),
+	),
+);
+
+$menu = new wb_menu($mainwin, false, $menu_data);
+
+// Create status bar
+
+$statusbar = wb_create_control($mainwin, StatusBar, '');
+
+// Create some buttons
+
+wb_create_control($mainwin, PushButton, 'Button 1',	10,  20, 130, 24, ID_BUTTON_1);
+wb_create_control($mainwin, PushButton, 'Button 2',	10,  50, 130, 24, ID_BUTTON_2);
+wb_create_control($mainwin, PushButton, 'Button 3',	10,  80, 130, 24, ID_BUTTON_3);
+wb_create_control($mainwin, PushButton, 'Button 4',	10,  110, 130, 24, ID_BUTTON_4);
+
+
+// Enter application loop
+
+wb_main_loop();
+
+//-------------------------------------------------------------------- FUNCTIONS
+
+/* Process main window commands */
+
+function process_main($window, $id)
+{
+    global $statusbar;
+
+
+    switch($id) {
+		
+		case ID_BUTTON_1:
+		case ID_BUTTON_2:
+		case ID_BUTTON_3:
+		case ID_BUTTON_4:
+			wb_set_text($statusbar, 'Button ' . ($id - 100) . ' clicked');
+		break;
+
+        case IDCLOSE:       // IDCLOSE is predefined
+            wb_destroy_window($window);
+        break;
+		
+		default:
+			if($id > 999 && $id < 2000)
+				wb_set_text($statusbar, 'Menu item with id of ' . $id . ' was clicked');
+    }
+}
+
+
+//------------------------------------------------------------------ END OF FILE
+
+?>

@@ -1,0 +1,57 @@
+<?php
+
+/*******************************************************************************
+
+ WINBINDER - The native Windows binding for PHP for PHP
+
+ Copyright © Hypervisual - see LICENSE.TXT for details
+ Author: Rubem Pechansky (http://winbinder.org/contact.php)
+
+  wb_registry example
+
+*******************************************************************************/
+
+//------------------------------------------------------------ SYSTEM PARAMETERS
+
+define("PATH_DATA",		"./");
+define("PATH_INC",		"../../include/");
+define("PATH_RES",		"../resources/");
+
+//----------------------------------------------------------------- DEPENDENCIES
+
+include PATH_INC . "winbinder.php";
+include 'wb_registry.php';
+
+
+//-------------------------------------------------------------- EXECUTABLE CODE
+
+// Registry funtions
+
+$msg  = "Current wallpaper name: " . wb_registry::get_key("HKCU", "Control Panel\\Desktop", "Wallpaper") . "\n";
+$msg .= "IE Local Page: " . wb_registry::get_key("HKLM", "SOFTWARE\Microsoft\Internet Explorer\Main", "Local Page") . "\n";
+$msg .= "A system font: " . wb_registry::get_key("HKCC", "software/fonts", "fonts.fon") . "\n";
+
+wb_message_box(null, $msg, null, WBC_INFO);
+
+
+// Creates or sets various values
+
+wb_registry::set_key("HKCU", "Software\\WinBinder", "String value", "1212");
+wb_registry::set_key("HKCU", "Software\\WinBinder", "Integer value", 1212);
+wb_registry::set_key("HKCU", "Software\\WinBinder", "Double value", 12.12);
+wb_registry::set_key("HKCU", "Software\\WinBinder", "", "This is the default value");
+
+wb_message_box(null, (float)wb_registry::get_key("HKCU", "Software\\WinBinder", "Double value"), null, WBC_INFO);
+
+
+// Delete the new entries
+
+//wb_registry::set_key("HKCU", "Software\\WinBinder", "String value");
+//wb_registry::set_key("HKCU", "Software\\WinBinder", "Integer value");
+//wb_registry::set_key("HKCU", "Software\\WinBinder", "Double value");
+//wb_registry::set_key("HKCU", "Software\\WinBinder", null);
+
+
+//------------------------------------------------------------------ END OF FILE
+
+?>
